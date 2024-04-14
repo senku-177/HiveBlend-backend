@@ -1,6 +1,9 @@
 const Users= require("../model/model");
 const io = require("../server");
 const client = require("../Redis/Redis_Client");
+require('dotenv').config();
+
+const { default: axios } = require("axios");
 async function joinRoom(socket,io){
     console.log("room-join");
     const mapKey= `room:users`;
@@ -73,12 +76,20 @@ async function sendMessage(io,socket, data){
        if(found){
         const index = chats.findIndex(us=>us.name==e1.username);
         console.log(chats[index]);
-        chats[index].chat.push({sender:e1.username,content:data.msg});
+        if (data.url){
+            chats[index].chat.push({sender:e1.username,content:data.msg,image:true});
+        }
+        else{
+        chats[index].chat.push({sender:e1.username,content:data.msg,image:false});}
         await Users.findOneAndUpdate({username:data.sendto},{chatLog:chats});
        }
        else{
         const chat=[];
-        chat.push({sender:e1.username,content:data.msg});
+        if(data.url){
+            chat.push({sender:e1.username,content:data.msg,image:true});
+        }
+        else{
+        chat.push({sender:e1.username,content:data.msg,image:false});}
         chats.push({name:e1.username,chat});
         await Users.findOneAndUpdate({username:data.sendto},{chatLog:chats});
        }
@@ -87,12 +98,20 @@ async function sendMessage(io,socket, data){
        if(founde1){
         const index = chatse1.findIndex(us=>us.name==data.sendto);
         console.log("same ", chatse1[index]);   
-        chatse1[index].chat.push({sender:e1.username,content:data.msg});
+        if(data.url){
+            chatse1[index].chat.push({sender:e1.username,content:data.msg,image:true});
+        }
+        else{
+        chatse1[index].chat.push({sender:e1.username,content:data.msg,image:false});}
         await Users.findOneAndUpdate({userid:socket.id},{chatLog:chatse1});
        }
        else{
         const chat=[];
-        chat.push({sender:e1.username,content:data.msg});
+        if(data.url){
+            chat.push({sender:e1.username,content:data.msg,image:true});
+        }
+        else{
+        chat.push({sender:e1.username,content:data.msg,image:false});}
         chatse1.push({name:data.sendto,chat:chat});
         await Users.findOneAndUpdate({userid:socket.id},{chatLog:chatse1});
        }
@@ -132,4 +151,31 @@ async function removeUser(username){
 
 }
 
-module.exports={joinRoom, msgRecieve, userList, fetchChat, sendMessage, closeChat , roomUserUpdate, removeUser};
+const handleimageSendRoom=async(data)=>{
+    const imageData=data.msg;
+    const base64ImageData = imageData.toString('base64');
+    const formData= new FormData();
+    formData.append("image",base64ImageData);
+    formData.append("key",process.env.IMAGE_UPLOAD_API_KEY);
+    formData.append("expiration",60*10);
+   
+
+    try{
+        
+
+        
+    const response= await axios.post('https://api.imgbb.com/1/upload',formData);
+        
+        const url = response.data.data.url;
+        return url;
+        
+    }
+    catch(err){
+        console.log('error: ',err);
+    }
+    
+
+}
+
+
+module.exports={joinRoom, handleimageSendRoom, msgRecieve, userList, fetchChat, sendMessage, closeChat , roomUserUpdate, removeUser};

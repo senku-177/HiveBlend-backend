@@ -7,7 +7,7 @@ const {Server} = require('socket.io');
 const {connectDatabase} = require('./connections/Database');
 const{connectedMap,createTimeout} = require('./connections/serverTimedOut');
 const Users = require('./model/model');
-const {joinRoom, userList, msgRecieve,fetchChat, sendMessage, closeChat,roomUserUpdate, removeUser} = require("./connections/room");
+const {joinRoom,handleimageSendRoom, userList, msgRecieve,fetchChat, sendMessage, closeChat,roomUserUpdate, removeUser} = require("./connections/room");
 
 const mongoUrl= "mongodb://127.0.0.1:27017/Chat-app";
 
@@ -105,6 +105,21 @@ io.use((socket, next) => {
       await msgRecieve(socket,data.msg,io);
     })
 
+    socket.on("room-message-image",async(data)=>{
+      console.log("image called");
+      const url =await handleimageSendRoom(data);
+      io.to("room1").emit("room-msg",{username:socket.username,content:url,image:true});
+
+    })
+
+    socket.on("private-message-image",async(data)=>{
+     const url= await handleimageSendRoom(data);
+      data.msg=url;
+      data.url=url;
+      console.log("image called",url);
+      console.log(data.url);
+      await sendMessage(io,socket,data);
+    })
     socket.on("user-list",async()=>{
       list = await userList();
       socket.emit("user-list",list);
