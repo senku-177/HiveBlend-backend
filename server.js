@@ -15,23 +15,23 @@ connectDatabase(mongoUrl).then(()=>{console.log("mongo server running")}).catch(
 
 const app = express();
 const corsOptions = {
-  origin: ['https://hive-blend.vercel.app'],
-  methods: ['GET', 'POST'],  // Allow only certain HTTP methods
-  allowedHeaders: ['Content-Type'],  // Allow only certain headers
+  origin: ['https://hive-blend.vercel.app'], // Allow only this origin
+  methods: ["GET", "POST"], // Allow GET and POST requests
 };
 
 app.use(cors(corsOptions));
 
-const server= http.createServer(app);
+const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://hive-blend.vercel.app/"],
+    origin: "https://hive-blend.vercel.app", // Allow these origins for socket.io
+    methods: ["GET", "POST"], // Allow GET and POST requests
   },
 });
 
-
-
-server.listen(9000,()=>{console.log("Server is running")});
+server.listen(9000, () => {
+  console.log("Server is running on port 9000");
+});
 
 
 
