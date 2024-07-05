@@ -14,7 +14,13 @@ const mongoUrl= process.env.MONGO_URL;
 connectDatabase(mongoUrl).then(()=>{console.log("mongo server running")}).catch(()=>{console.log("server m dikkat")});
 
 const app = express();
-app.use(cors());
+const corsOptions = {
+  origin: ['https://hive-blend.vercel.app'],
+  methods: ['GET', 'POST'],  // Allow only certain HTTP methods
+  allowedHeaders: ['Content-Type'],  // Allow only certain headers
+};
+
+app.use(cors(corsOptions));
 
 const server= http.createServer(app);
 const io = new Server(server, {
