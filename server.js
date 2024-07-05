@@ -14,6 +14,7 @@ const mongoUrl= process.env.MONGO_URL;
 connectDatabase(mongoUrl).then(()=>{console.log("mongo server running")}).catch(()=>{console.log("server m dikkat")});
 
 const app = express();
+app.use(cors());
 
 const server= http.createServer(app);
 const io = new Server(server, {
