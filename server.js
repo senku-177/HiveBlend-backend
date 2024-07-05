@@ -16,9 +16,12 @@ connectDatabase(mongoUrl).then(()=>{console.log("mongo server running")}).catch(
 const app = express();
 
 const server= http.createServer(app);
-const io = new Server(server,{cors:{
-    origin:"http://localhost:3000",
-}});
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:3000", "https://hive-blend.vercel.app/"],
+  },
+});
+
 
 
 server.listen(9000,()=>{console.log("Server is running")});
