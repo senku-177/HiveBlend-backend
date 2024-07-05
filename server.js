@@ -3,13 +3,13 @@ const express = require('express');
 const cors=require('cors');
 const path = require('path');
 const {Server} = require('socket.io');
-
+require('dotenv').config();
 const {connectDatabase} = require('./connections/Database');
 const{connectedMap,createTimeout} = require('./connections/serverTimedOut');
 const Users = require('./model/model');
 const {joinRoom,handleimageSendRoom, userList, msgRecieve,fetchChat, sendMessage, closeChat,roomUserUpdate, removeUser} = require("./connections/room");
 
-const mongoUrl= "mongodb://127.0.0.1:27017/Chat-app";
+const mongoUrl= process.env.MONGO_URL;
 
 connectDatabase(mongoUrl).then(()=>{console.log("mongo server running")}).catch(()=>{console.log("server m dikkat")});
 
@@ -95,9 +95,11 @@ io.use((socket, next) => {
     });
     
 
-    socket.on("connect-room",()=>{
-      joinRoom(socket,io);
+    socket.on("connect-room", (callback) => {
+      console.log("room connected");
+      joinRoom(socket, io);
       roomUserUpdate(socket.id);
+      callback({ status: 'success', message: 'Room connected successfully' });
     });
 
     

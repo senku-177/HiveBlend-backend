@@ -8,7 +8,13 @@ async function joinRoom(socket,io){
     console.log("room-join");
     const mapKey= `room:users`;
     const username = socket.username;
+    console.log("username:",username);
+    
     await client.hset(mapKey,username, socket.id);
+    
+    console.log(await client.hget(mapKey,username));
+    console.log("room-join");
+    
     socket.join("room1");
     io.to("room1").emit("user-joined",socket.username);
     socket.emit("room-connected");
